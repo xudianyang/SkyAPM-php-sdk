@@ -66,10 +66,18 @@ public:
         Downstream reply;
 
         ClientContext context;
+        unsigned int timeout = 10;
+        std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::seconds(timeout);
+
+        context.set_deadline(deadline);
+
         std::unique_ptr<ClientWriter<UpstreamSegment>> writer(stub_->collect(&context, &reply));
+        std::cout << "Write ..." << std::endl;
         if (!writer->Write(request)) {
+            std::cout << "stream closed" << std::endl;
         }
         writer->WritesDone();
+        std::cout << "Write Done" << std::endl;
         Status status = writer->Finish();
 
 
